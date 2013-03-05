@@ -1,0 +1,7 @@
+Dart support for play2 / scala.
+
+$> sbt
+$> publish-local
+
+Enjoy
+
