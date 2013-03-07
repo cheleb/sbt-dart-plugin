@@ -6,9 +6,9 @@ sbtPlugin := true
 
 name := "sbt-dart-plugin"
 
-resolvers += Resolver.file("Local Repository", file("/Users/olivier/projects/scala/Play20-myfork/repository/local"))(Resolver.ivyStylePatterns)
-
 //libraryDependencies += "org.scala-tools.sbinary" %% "sbinary" % "0.4.1"
+
+publishTo := Some(Resolver.file("file",  new File( "/tmp/sbt-dart" )) )
 
 organization := "net.orcades"
 
