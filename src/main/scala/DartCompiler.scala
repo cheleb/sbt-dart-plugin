@@ -9,18 +9,27 @@ import PlayKeys._
 
 object DartCompiler {
 
-  lazy val dartExe: Option[File] = {
-    val dartHome = System.getenv("DART_HOME")
-    if (dartHome == null) {
-      None
+  lazy val dartHome: File = {
+    val DART_HOME = System.getenv("DART_HOME")
+    if (DART_HOME == null) {
+      sys.error("DART_HOME env variable must be defined!")
     } else {
-      val path = dartHome + "/bin/dart2js"
-      val exe = new File(path)
-      if (exe.exists())
-        Some(exe)
+      val dartHome = new File(DART_HOME)
+      if (dartHome.exists())
+        dartHome
       else
-        None
+        sys.error(dartHome + " does not exist!")
     }
+  }
+
+  lazy val dartExe: File = {
+    val path = dartHome + "/bin/dart2js"
+    val exe = new File(path)
+    if (exe.exists())
+      exe
+    else
+      sys.error(exe + " does not exist!")
+
   }
 
   case class CompilationException(message: String, jsFile: File, atLine: Option[Int]) extends PlayException.ExceptionSource(
@@ -31,7 +40,13 @@ object DartCompiler {
     def sourceName = jsFile.getAbsolutePath
   }
 
-  def dartProcess(dartFile: File, options: Seq[String]) = {
+  /**
+   * Compile dart file into javascript.
+   * @param dartFile
+   * @param options dart compiler options
+   * @return (source, None, Seq(deps))
+   */
+  def dart2js(dartFile: File, options: Seq[String]) = {
 
     val tmpDir = IO.createTemporaryDirectory
 
@@ -39,11 +54,8 @@ object DartCompiler {
 
     val tmpFile = tmpDir / tmpFilename
 
-    val cmd = dartExe match {
-      case None => sys.error("Could not find dart2js!")
-      case Some(exe) => exe.absolutePath + " -o" + tmpFile.absolutePath + " " + dartFile.absolutePath
-    }
-
+    val cmd = dartExe.absolutePath + " -o" + tmpFile.absolutePath + " " + dartFile.absolutePath
+    
     import scala.sys.process._
     val d2js = Process(cmd)
 
@@ -69,18 +81,8 @@ object DartCompiler {
     (IO.read(dartFile), None, Seq(dartFile))
   }
 
-  /**
-   * Compile dart file into javascript.
-   * @param dartFile
-   * @param options dart compiler options
-   * @return (source, None, Seq(deps))
-   */
-  def dart2js(dartFile: File, options: Seq[String]) = {
-    dartExe match {
-      case None => sys.error("Could not find dart2js!")
-      case Some(exe) => dartProcess(dartFile, options)
-    }
-  }
+  
+   
 
   /**
    * Return all Dart files in the same directory than the input file, or subdirectories
@@ -108,8 +110,5 @@ object DartCompiler {
         throw new AssetCompilationException(Some(src), "Internal ClojureScript Compiler error (see logs)", None, None)
     }
   }
-  
-  
-  
 
 }
