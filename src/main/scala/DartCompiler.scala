@@ -7,13 +7,9 @@ import play.api._
 import Keys._
 import PlayKeys._
 
-
 object DartCompiler {
 
-  
-  
-  
- lazy val dartExe: Option[File] = {
+  lazy val dartExe: Option[File] = {
     val dartHome = System.getenv("DART_HOME")
     if (dartHome == null) {
       None
@@ -27,7 +23,7 @@ object DartCompiler {
     }
   }
 
- case class CompilationException(message: String, jsFile: File, atLine: Option[Int]) extends PlayException.ExceptionSource(
+  case class CompilationException(message: String, jsFile: File, atLine: Option[Int]) extends PlayException.ExceptionSource(
     "Dart Compilation error", message) {
     def line = atLine.map(_.asInstanceOf[java.lang.Integer]).orNull
     def position = null
@@ -35,58 +31,58 @@ object DartCompiler {
     def sourceName = jsFile.getAbsolutePath
   }
 
-  def dartProcess(dartFile: File, options: Seq[String] ) = {
+  def dartProcess(dartFile: File, options: Seq[String]) = {
 
-   val tmpDir = IO.createTemporaryDirectory
-  
-   val tmpFilename = dartFile.name + ".js"
+    val tmpDir = IO.createTemporaryDirectory
 
-   val tmpFile = tmpDir / tmpFilename
+    val tmpFilename = dartFile.name + ".js"
 
-   val cmd = dartExe match {
+    val tmpFile = tmpDir / tmpFilename
+
+    val cmd = dartExe match {
       case None => sys.error("Could not find dart2js!")
       case Some(exe) => exe.absolutePath + " -o" + tmpFile.absolutePath + " " + dartFile.absolutePath
     }
-   
-   import scala.sys.process._
-   val d2js = Process(cmd)
-   
+
+    import scala.sys.process._
+    val d2js = Process(cmd)
+
     var out = List[String]()
     var err = List[String]()
     val exit = d2js ! ProcessLogger((s) => out ::= s, (s) => err ::= s)
 
-   if(exit != 0){
-     throw CompilationException(err.mkString("\n"), dartFile, None)
-   }
-   
-   (IO.read(tmpFile), None, allSiblings(dartFile)) 
+    if (exit != 0) {
+      throw CompilationException(err.mkString("\n"), dartFile, None)
+    }
+
+    (IO.read(tmpFile), None, allSiblings(dartFile))
 
   }
 
   /**
-   * Publish the dart files. 
-   * @param dartFile 
+   * Publish the dart files.
+   * @param dartFile
    * @param options dart compiler options
    * @return (source, None, Self)
-   **/ 
-  def dart2dart( dartFile: File, options: Seq[String] ) = {
-    (IO.read(dartFile), None, Seq(dartFile))    
+   */
+  def dart2dart(dartFile: File, options: Seq[String]) = {
+    (IO.read(dartFile), None, Seq(dartFile))
   }
 
   /**
    * Compile dart file into javascript.
-   * @param dartFile 
+   * @param dartFile
    * @param options dart compiler options
    * @return (source, None, Seq(deps))
-   **/
-  def dart2js(dartFile: File, options: Seq[String] ) = {
+   */
+  def dart2js(dartFile: File, options: Seq[String]) = {
     dartExe match {
       case None => sys.error("Could not find dart2js!")
       case Some(exe) => dartProcess(dartFile, options)
     }
   }
 
- /**
+  /**
    * Return all Dart files in the same directory than the input file, or subdirectories
    */
   private def allSiblings(source: File): Seq[File] = allJsFilesIn(source.getParentFile())
@@ -102,17 +98,18 @@ object DartCompiler {
     val jsFilesChildren = directories.map(d => allJsFilesIn(d)).flatten
     jsFiles ++ jsFilesChildren
   }
-  
-  
-   def compile(src: File, options: Seq[String]): (String, Option[String], Seq[File]) = {
+
+  def compile(src: File, options: Seq[String]): (String, Option[String], Seq[File]) = {
     try {
       dart2js(src, options)
-    }catch {
+    } catch {
       case e: Exception =>
         e.printStackTrace
         throw new AssetCompilationException(Some(src), "Internal ClojureScript Compiler error (see logs)", None, None)
     }
-   }
-    
+  }
+  
+  
+  
 
 }

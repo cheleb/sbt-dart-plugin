@@ -1,3 +1,5 @@
+version := "0.2-SNAPSHOT"
+
 scalaVersion in ThisBuild := "2.9.2"
 
 sbtPlugin := true
