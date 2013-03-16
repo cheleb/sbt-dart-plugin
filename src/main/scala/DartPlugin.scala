@@ -4,12 +4,10 @@ import sbt._
 import sbt.Keys._
 import play.Project._
 
-object DartPlugin extends Plugin {
-  val id = "play-dart"
-  val dartFiles = SettingKey[PathFinder](id + "-files")
-  val dartEntryPoints = SettingKey[PathFinder](id + "-entry-points")
-  val dartOptions = SettingKey[Seq[String]](id + "-options")
+import net.orcades.scala.play.dart.DartKeys._
 
+object DartPlugin extends Plugin {
+  
   val dartJSCompiler = AssetsCompiler(id + "-dart2js",
     (_ ** "*.dart"),
     dartEntryPoints in Compile,
@@ -25,6 +23,7 @@ object DartPlugin extends Plugin {
     dartOptions in Compile)
 
   override val settings = Seq(
+    dartDirectory in Compile <<= baseDirectory / "public", 
     dartFiles <<= (sourceDirectory in Compile).apply(base => ((base / "assets" ** "*.dart"))),
     dartEntryPoints <<= (sourceDirectory in Compile).apply(base => ((base / "assets" ** "*.dart") --- (base / "assets" ** "_*")) --- (base / "assets" / "packages" ** "*")),
     dartOptions := Seq.empty[String],
