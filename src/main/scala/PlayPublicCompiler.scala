@@ -45,7 +45,7 @@ trait PlayPublicCompiler {
          * if the given file was a dependency,
          * otherwise calculate dependencies based on previous relation graph
          */
-        val generated: Seq[(File, java.io.File)] = (files x relativeTo(Seq(src / "assets"))).flatMap {
+        val generated: Seq[(File, java.io.File)] = (files x relativeTo(Seq(src))).flatMap {
           case (sourceFile, name) => {
             if (changedFiles.contains(sourceFile) || dependencies.contains(new File(resources, "public/" + naming(name, false)))) {
               val (debug, min, dependencies) = try {
