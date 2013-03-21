@@ -1,20 +1,29 @@
 version := "0.2.1-SNAPSHOT"
 
-scalaVersion in ThisBuild := "2.9.2"
+scalaVersion := "2.10.1"
 
 sbtPlugin := true
 
 name := "sbt-dart-plugin"
 
-//libraryDependencies += "org.scala-tools.sbinary" %% "sbinary" % "0.4.1"
+libraryDependencies += "org.scala-tools.sbinary" %% "sbinary" % "0.4.1"
+
+libraryDependencies += "play" %% "play" % "2.1.0"
+
+libraryDependencies += "com.google.javascript" % "closure-compiler" % "rr2079.1"
+
+unmanagedJars in Compile <++= baseDirectory map { base =>
+    val libs = base / "libs"
+    (libs ** "*.jar").classpath
+}
+
+
 
 publishTo := Some(Resolver.file("file",  new File( "/tmp/sbt-dart" )) )
 
 organization := "net.orcades"
 
-addSbtPlugin("play" %% "sbt-plugin" % "2.1.0")
+javacOptions ++= Seq("-source", "1.7", "-target", "1.7")
 
-//javacOptions ++= Seq("-source", "1.7", "-target", "1.7")
-
-//scalacOptions ++= Seq("-target:jvm-1.7")
+scalacOptions ++= Seq("-target:jvm-1.7")
 

@@ -107,7 +107,7 @@ object DartCompiler {
     } catch {
       case e: Exception =>
         e.printStackTrace
-        throw new AssetCompilationException(Some(src), "Internal ClojureScript Compiler error (see logs)", None, None)
+        throw new AssetCompilationException(Some(src), "Internal dart2js Compiler error (see logs)", None, None)
     }
   }
 
