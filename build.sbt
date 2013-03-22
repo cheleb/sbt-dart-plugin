@@ -6,6 +6,8 @@ sbtPlugin := true
 
 name := "sbt-dart-plugin"
 
+resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
+
 libraryDependencies += "org.scala-tools.sbinary" %% "sbinary" % "0.4.1"
 
 libraryDependencies += "play" %% "play" % "2.1.0"
