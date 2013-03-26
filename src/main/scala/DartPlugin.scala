@@ -25,7 +25,7 @@ object DartPlugin extends Plugin with PlayPublicCompiler {
   override val settings = Seq(
     dartDirectory in Compile <<= baseDirectory / "public", 
     dartFiles <<= (sourceDirectory in Compile).apply(base => ((base / "assets" ** "*.dart"))),
-    dartEntryPoints <<= (dartDirectory in Compile).apply(base => ((base ** "*.dart") --- (base ** "_*")) --- (base / "packages" ** "*")),
+    dartEntryPoints <<= (dartDirectory in Compile).apply(base => ((base ** "*.dart") --- (base ** "_*")) --- (base / "packages" ** "*") --- (base / "lib" ** "*" )),
     dartOptions := Seq.empty[String],
     resourceGenerators in Compile <+= dartJSCompiler)
 //    resourceGenerators in Compile <+= dart2dartCompiler)
