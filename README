@@ -3,5 +3,8 @@ Dart support for play2 / scala.
 $> sbt
 $> publish-local
 
+
+Sample project: https://github.com/cheleb/play2dart
+
 Enjoy
 
