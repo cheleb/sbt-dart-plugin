@@ -18,11 +18,8 @@ trait PlayPublicCompiler {
     naming: (String, Boolean) => String,
     compile: (File, Seq[String]) => (String, Option[String], Seq[File]),
     optionsSettings: sbt.SettingKey[Seq[String]]) =
-    (state, dartDirectory in Compile, resourceManaged in Compile, cacheDirectory, optionsSettings, filesSetting, requireJs) map { (state, src, resources, cache, options, files, requireJs) =>
+    (state, dartDirectory in Compile, resourceManaged in Compile, cacheDirectory, optionsSettings, filesSetting) map { (state, src, resources, cache, options, files) =>
 
-      val requireSupport = if (!requireJs.isEmpty) {
-        Seq("rjs")
-      } else Seq[String]()
 
       import java.io._
 
@@ -49,7 +46,7 @@ trait PlayPublicCompiler {
           case (sourceFile, name) => {
             if (changedFiles.contains(sourceFile) || dependencies.contains(new File(resources, "public/" + naming(name, false)))) {
               val (debug, min, dependencies) = try {
-                compile(sourceFile, options ++ requireSupport)
+                compile(sourceFile, options)
               } catch {
                 case e: AssetCompilationException => throw reportCompilationError(state, e)
               }
