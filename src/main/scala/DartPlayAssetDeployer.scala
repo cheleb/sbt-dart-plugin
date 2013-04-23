@@ -23,8 +23,6 @@ trait DartPlayAssetDeployer {
     optionsSettings: sbt.SettingKey[Seq[String]]) =
     (state, dartPublicDirectory, dartPackagesDirectory, dartWebDirectory, dartWebPackageLink, dartPublicPackagesLink, resourceManaged in Compile, cacheDirectory, optionsSettings, filesSetting, requireJs) map { (state, public, dartPackages, web, webPackages, packagesLink, resources, cache, options, files, requireJs) =>
 
-      println("oook")
-      
       if (Files.isSymbolicLink(packagesLink.toPath())) {
         state.log.debug(packagesLink + " OK");
       } else {
@@ -38,10 +36,6 @@ trait DartPlayAssetDeployer {
         Files.createSymbolicLink(webPackages.toPath(), web.toPath().relativize(packagesLink.toPath()))
         state.log.info("Add package symlink: " + packagesLink)
       }
-
-      val requireSupport = if (!requireJs.isEmpty) {
-        Seq("rjs")
-      } else Seq[String]()
 
       import java.io._
 
@@ -72,7 +66,7 @@ trait DartPlayAssetDeployer {
               Nil
             else if (changedFiles.contains(sourceFile) || dependencies.contains(new File(resources, "public/" + naming(name, false)))) {
               val (debug, min, dependencies) = try {
-                compile(sourceFile, options ++ requireSupport)
+                compile(sourceFile, options)
               } catch {
                 case e: AssetCompilationException => throw reportCompilationError(state, e)
               }
