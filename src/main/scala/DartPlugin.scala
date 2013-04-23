@@ -36,8 +36,8 @@ object DartPlugin extends Plugin
 
     dartEntryPoints := Seq.empty[String],
     dartWebUIEntryPoints := Seq.empty[String],
-    dartResources in Compile <<= (dartDirectory in Compile).apply(base => ((base / "web" ** "*.*") --- (base / "web" / "out" ** "*") --- (base / "web" / "images" ** "*"))),
-    dartFiles in Compile <<= (dartDirectory in Compile).apply(base => ((base / "web" ** "*.dart") --- (base / "web" / "images" ** "*") --- (base / "web" / "out" ** "*"))),
+    dartResources in Compile <<= (dartWebDirectory in Compile).apply(base => ((base  ** "*.*") --- (base / "out" ** "*") )),
+    dartFiles in Compile <<= (dartWebDirectory in Compile).apply(base => ((base ** "*.dart")  --- (base  / "out" ** "*"))),
     dartOptions := Seq.empty[String])
 
 }
