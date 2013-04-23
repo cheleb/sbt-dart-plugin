@@ -9,12 +9,12 @@ import java.nio.file.Files
 
 object DartCompiler {
 
-  lazy val dartHome: File = {
-    val DART_HOME = System.getenv("DART_HOME")
-    if (DART_HOME == null) {
+  lazy val dartSdk: File = {
+    val DART_SDK = System.getenv("DART_SDK")
+    if (DART_SDK == null) {
       sys.error("DART_HOME env variable must be defined!")
     } else {
-      val dartHome = new File(DART_HOME)
+      val dartHome = new File(DART_SDK)
       if (dartHome.exists())
         dartHome
       else
@@ -23,7 +23,7 @@ object DartCompiler {
   }
 
   lazy val dart2jsExe: File = {
-    val path = dartHome + "/bin/dart2js"
+    val path = dartSdk + "/bin/dart2js"
     val exe = new File(path)
     if (exe.exists())
       exe
@@ -33,7 +33,7 @@ object DartCompiler {
   }
 
   lazy val dartExe: File = {
-    val path = dartHome + "/bin/dart"
+    val path = dartSdk + "/bin/dart"
     val exe = new File(path)
     if (exe.exists())
       exe
