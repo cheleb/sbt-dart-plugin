@@ -17,6 +17,8 @@ object DartPlugin extends Plugin
     //    webuic <<= webuicTask.runBefore(PlayProject.playCopyAssets),
     //    dart2js <<= dart2jsTask.runBefore(PlayProject.playCopyAssets),
 
+    dartPluginDisabled := false,  
+      
     dartDirectory <<= (sourceDirectory in Compile) /  "dart",
     dartPackagesDirectory <<= (dartDirectory) / "packages",
     dartWebDirectory <<= (dartDirectory) / "web",

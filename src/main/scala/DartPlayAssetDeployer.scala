@@ -21,81 +21,85 @@ trait DartPlayAssetDeployer {
     naming: (String, Boolean) => String,
     compile: (File, Seq[String]) => (String, Option[String], Seq[File]),
     optionsSettings: sbt.SettingKey[Seq[String]]) =
-    (state, dartPublicDirectory, dartPackagesDirectory, dartWebDirectory, dartWebPackageLink, dartPublicPackagesLink, resourceManaged in Compile, cacheDirectory, optionsSettings, filesSetting, requireJs) map { (state, public, dartPackages, web, webPackages, packagesLink, resources, cache, options, files, requireJs) =>
+    (dartPluginDisabled, state, dartPublicDirectory, dartPackagesDirectory, dartWebDirectory, dartWebPackageLink, dartPublicPackagesLink, resourceManaged in Compile, cacheDirectory, optionsSettings, filesSetting, requireJs) map { (disabled, state, public, dartPackages, web, webPackages, packagesLink, resources, cache, options, files, requireJs) =>
 
-      if (Files.isSymbolicLink(packagesLink.toPath())) {
-        state.log.debug(packagesLink + " OK");
+      if (disabled) {
+        Nil
       } else {
-        Files.createSymbolicLink(packagesLink.toPath(), public.toPath().relativize(dartPackages.toPath()))
-        state.log.info("Add package symlink: " + packagesLink)
-      }
-      
-      if (Files.isSymbolicLink(webPackages.toPath())) {
-        state.log.debug(packagesLink + " OK");
-      } else {
-        Files.createSymbolicLink(webPackages.toPath(), web.toPath().relativize(packagesLink.toPath()))
-        state.log.info("Add package symlink: " + packagesLink)
-      }
 
-      import java.io._
-
-      val cacheFile = cache / name
-      val currentInfos = watch(web).get.map(f => f -> FileInfo.lastModified(f)).toMap
-
-      val (previousRelation, previousInfo) = Sync.readInfo(cacheFile)(FileInfo.lastModified.format)
-
-      if (previousInfo != currentInfos) {
-
-        state.log.info("++++ " + name + " ++++ ")
-
-        //a changed file can be either a new file, a deleted file or a modified one
-        lazy val changedFiles: Seq[File] = currentInfos.filter(e => !previousInfo.get(e._1).isDefined || previousInfo(e._1).lastModified < e._2.lastModified).map(_._1).toSeq ++ previousInfo.filter(e => !currentInfos.get(e._1).isDefined).map(_._1).toSeq
-
-        //erease dependencies that belong to changed files
-        val dependencies = previousRelation.filter((original, compiled) => changedFiles.contains(original))._2s
-        dependencies.foreach(IO.delete)
-
-        /**
-         * If the given file was changed or
-         * if the given file was a dependency,
-         * otherwise calculate dependencies based on previous relation graph
-         */
-        val generated: Seq[(File, java.io.File)] = (files x relativeTo(Seq(web))).flatMap {
-          case (sourceFile, name) => {
-            if (name.startsWith("packages/") || name.startsWith("out/"))
-              Nil
-            else if (changedFiles.contains(sourceFile) || dependencies.contains(new File(resources, "public/" + naming(name, false)))) {
-              val (debug, min, dependencies) = try {
-                compile(sourceFile, options)
-              } catch {
-                case e: AssetCompilationException => throw reportCompilationError(state, e)
-              }
-              val out = new File(resources, "public/" + naming(name, false))
-              IO.write(out, debug)
-              (dependencies ++ Seq(sourceFile)).toSet[File].map(_ -> out) ++ min.map { minified =>
-                val outMin = new File(resources, "public/" + naming(name, true))
-                IO.write(outMin, minified)
-                (dependencies ++ Seq(sourceFile)).map(_ -> outMin)
-              }.getOrElse(Nil)
-            } else {
-              previousRelation.filter((original, compiled) => original == sourceFile)._2s.map(sourceFile -> _)
-            }
-          }
+        if (Files.isSymbolicLink(packagesLink.toPath())) {
+          state.log.debug(packagesLink + " OK");
+        } else {
+          Files.createSymbolicLink(packagesLink.toPath(), public.toPath().relativize(dartPackages.toPath()))
+          state.log.info("Add package symlink: " + packagesLink)
         }
 
-        //write object graph to cache file 
-        Sync.writeInfo(cacheFile,
-          Relation.empty[File, File] ++ generated,
-          currentInfos)(FileInfo.lastModified.format)
+        if (Files.isSymbolicLink(webPackages.toPath())) {
+          state.log.debug(packagesLink + " OK");
+        } else {
+          Files.createSymbolicLink(webPackages.toPath(), web.toPath().relativize(packagesLink.toPath()))
+          state.log.info("Add package symlink: " + packagesLink)
+        }
 
-        // Return new files
-        generated.map(_._2).distinct.toList
+        import java.io._
 
-      } else {
-        // Return previously generated files
-        previousRelation._2s.toSeq
+        val cacheFile = cache / name
+        val currentInfos = watch(web).get.map(f => f -> FileInfo.lastModified(f)).toMap
+
+        val (previousRelation, previousInfo) = Sync.readInfo(cacheFile)(FileInfo.lastModified.format)
+
+        if (previousInfo != currentInfos) {
+
+          state.log.info("++++ " + name + " ++++ ")
+
+          //a changed file can be either a new file, a deleted file or a modified one
+          lazy val changedFiles: Seq[File] = currentInfos.filter(e => !previousInfo.get(e._1).isDefined || previousInfo(e._1).lastModified < e._2.lastModified).map(_._1).toSeq ++ previousInfo.filter(e => !currentInfos.get(e._1).isDefined).map(_._1).toSeq
+
+          //erease dependencies that belong to changed files
+          val dependencies = previousRelation.filter((original, compiled) => changedFiles.contains(original))._2s
+          dependencies.foreach(IO.delete)
+
+          /**
+           * If the given file was changed or
+           * if the given file was a dependency,
+           * otherwise calculate dependencies based on previous relation graph
+           */
+          val generated: Seq[(File, java.io.File)] = (files x relativeTo(Seq(web))).flatMap {
+            case (sourceFile, name) => {
+              if (name.startsWith("packages/") || name.startsWith("out/"))
+                Nil
+              else if (changedFiles.contains(sourceFile) || dependencies.contains(new File(resources, "public/" + naming(name, false)))) {
+                val (debug, min, dependencies) = try {
+                  compile(sourceFile, options)
+                } catch {
+                  case e: AssetCompilationException => throw reportCompilationError(state, e)
+                }
+                val out = new File(resources, "public/" + naming(name, false))
+                IO.write(out, debug)
+                (dependencies ++ Seq(sourceFile)).toSet[File].map(_ -> out) ++ min.map { minified =>
+                  val outMin = new File(resources, "public/" + naming(name, true))
+                  IO.write(outMin, minified)
+                  (dependencies ++ Seq(sourceFile)).map(_ -> outMin)
+                }.getOrElse(Nil)
+              } else {
+                previousRelation.filter((original, compiled) => original == sourceFile)._2s.map(sourceFile -> _)
+              }
+            }
+          }
+
+          //write object graph to cache file 
+          Sync.writeInfo(cacheFile,
+            Relation.empty[File, File] ++ generated,
+            currentInfos)(FileInfo.lastModified.format)
+
+          // Return new files
+          generated.map(_._2).distinct.toList
+
+        } else {
+          // Return previously generated files
+          previousRelation._2s.toSeq
+        }
       }
-
     }
 
   val dart2dartCompiler = DartPlayAssetDeployer(dartId + "-dart2dart",

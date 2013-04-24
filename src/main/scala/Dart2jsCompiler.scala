@@ -12,9 +12,9 @@ trait Dart2jsCompiler {
     filesSetting: sbt.SettingKey[PathFinder],
     naming: String => String) = {
 
-    (state, dartDirectory, dartEntryPoints, dartWebDirectory, filesSetting in Compile, resourceManaged in Compile, cacheDirectory, dartOptions) map { (state, dartDir, entryPoints, web, files, resources, cache, options) =>
+    (dartPluginDisabled, state, dartDirectory, dartEntryPoints, dartWebDirectory, filesSetting in Compile, resourceManaged in Compile, cacheDirectory, dartOptions) map { (disabled, state, dartDir, entryPoints, web, files, resources, cache, options) =>
 
-      if (entryPoints.isEmpty) {
+      if (disabled || entryPoints.isEmpty) {
         Nil
       } else {
 

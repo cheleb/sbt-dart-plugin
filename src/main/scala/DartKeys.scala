@@ -5,7 +5,7 @@ import sbt._
 trait DartKeys {
 
   val dartId = "play-dart"
-
+  val dartPluginDisabled = SettingKey[Boolean](dartId + "-disabled")
   val dartDirectory = SettingKey[java.io.File](dartId + "-directory")
   val dartPackagesDirectory = SettingKey[java.io.File](dartId + "-packages-directory")
   val dartWebDirectory = SettingKey[java.io.File](dartId + "-web-directory")

@@ -12,9 +12,9 @@ trait DartWebUICompiler {
   def DartWebUICompiler(name: String,
     watch: File => PathFinder) = {
 
-    (state, dartWebDirectory, dartWebUIDirectory, dartPackagesDirectory, dartWebUIEntryPoints, dartWebUIPublicDirectory, dartPublicPackagesLink, dartWebUIPublicPackagesLink, dartDirectory in Compile, resourceManaged in Compile, cacheDirectory, dartOptions) map { (state, web, webui, dartPackages, entryPoints, webUIPublic, packagesLink, webUIPackagesLink, dartDir, resources, cache, options) =>
+    (dartPluginDisabled, state, dartWebDirectory, dartWebUIDirectory, dartPackagesDirectory, dartWebUIEntryPoints, dartWebUIPublicDirectory, dartPublicPackagesLink, dartWebUIPublicPackagesLink, dartDirectory in Compile, resourceManaged in Compile, cacheDirectory, dartOptions) map { (disabled, state, web, webui, dartPackages, entryPoints, webUIPublic, packagesLink, webUIPackagesLink, dartDir, resources, cache, options) =>
 
-      if (entryPoints.isEmpty) {
+      if (disabled || entryPoints.isEmpty) {
         //No webui declared.
         Nil
       } else {
