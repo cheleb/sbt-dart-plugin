@@ -32,13 +32,13 @@ object DartPlugin extends Plugin
     dartWebUIPublicDirectory <<= dartPublicDirectory / "out",
     dartWebUIPublicPackagesLink <<= dartWebUIPublicDirectory / "packages",
 
-    resourceGenerators in Compile <+= dart2dartCompiler,
-    resourceGenerators in Compile <+= dart2jsCompiler,
     resourceGenerators in Compile <+= dartWebUICompiler,
+    resourceGenerators in Compile <+= dartAssetsDeployer,
+    resourceGenerators in Compile <+= dart2jsCompiler,
 
     dartEntryPoints := Seq.empty[String],
     dartWebUIEntryPoints := Seq.empty[String],
-    dartResources in Compile <<= (dartWebDirectory in Compile).apply(base => ((base  ** "*.*") --- (base / "out" ** "*") )),
+    
     dartFiles in Compile <<= (dartWebDirectory in Compile).apply(base => ((base ** "*.dart")  --- (base  / "out" ** "*"))),
     dartOptions := Seq.empty[String])
 

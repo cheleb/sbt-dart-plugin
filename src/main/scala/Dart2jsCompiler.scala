@@ -14,7 +14,7 @@ trait Dart2jsCompiler {
 
     (dartPluginDisabled, state, dartDirectory, dartEntryPoints, dartWebDirectory, filesSetting in Compile, resourceManaged in Compile, cacheDirectory, dartOptions) map { (disabled, state, dartDir, entryPoints, web, files, resources, cache, options) =>
 
-      if (disabled || entryPoints.isEmpty) {
+      val r = if (disabled || entryPoints.isEmpty) {
         Nil
       } else {
 
@@ -26,7 +26,7 @@ trait Dart2jsCompiler {
         val (previousRelation, previousInfo) = Sync.readInfo(cacheFile)(FileInfo.lastModified.format)
 
         if (previousInfo != currentInfos) {
-          state.log.info("    ++++   " + name + "   ++++")
+          state.log.info("\t++++   " + name + "   ++++")
 
           //a changed file can be either a new file, a deleted file or a modified one
           lazy val changedFiles: Seq[File] = currentInfos.filter(e => !previousInfo.get(e._1).isDefined || previousInfo(e._1).lastModified < e._2.lastModified).map(_._1).toSeq ++ previousInfo.filter(e => !currentInfos.get(e._1).isDefined).map(_._1).toSeq
@@ -73,6 +73,8 @@ trait Dart2jsCompiler {
         }
 
       }
+      println(r)
+      r
     }
   }
   val dart2jsCompiler = Dart2jsCompiler(dartId + "-js-compiler",

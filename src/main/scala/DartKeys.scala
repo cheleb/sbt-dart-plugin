@@ -24,7 +24,7 @@ trait DartKeys {
   val dartWebUIEntryPoints = SettingKey[Seq[String]](dartId + "-web_ui-entries-point")
 
   val dartFiles = SettingKey[PathFinder](dartId + "-files")
-  val dartResources = SettingKey[PathFinder](dartId + "-resources")
+
   val dartOptions = SettingKey[Seq[String]](dartId + "-options")
 
   val webuic = TaskKey[Unit]("web_ui", "compile web_ui")

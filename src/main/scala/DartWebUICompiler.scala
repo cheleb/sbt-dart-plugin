@@ -36,7 +36,7 @@ trait DartWebUICompiler {
         if (previousInfo != currentInfos) {
 
           val pub = resources / "public"
-          state.log.info("    ++++   " + name + "   ++++")
+          state.log.info("\t++++   " + name + "   ++++")
 
           val out = resources / "public" / "out"
           if (out.mkdirs()) {
@@ -58,9 +58,6 @@ trait DartWebUICompiler {
 
               val dst = new File(pub, rel)
 
-//              if (Files.exists(dst.toPath()))
-//                FileUtil.forceDelete(dst)
-              Files.copy(e.toPath(), dst.toPath(), StandardCopyOption.REPLACE_EXISTING)
               (dst, e.relativeTo(web).get)
 
           }
