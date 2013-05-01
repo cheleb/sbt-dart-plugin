@@ -49,7 +49,7 @@ trait DartPlayAssetDeployer {
           val dartAssets = watch(web)
           
           
-          val gen = dartAssets x relativeTo(Seq(web))
+        //  val gen = dartAssets x relativeTo(Seq(web))
           
           
           /**
@@ -61,7 +61,7 @@ trait DartPlayAssetDeployer {
             case (sourceFile, name) => {
               if (changedFiles.contains(sourceFile) ) {
                 
-                println("update" + sourceFile)
+                println("Update: " + sourceFile)
                 
                 val targetFile = new File(resources, "public/" + name)
                 

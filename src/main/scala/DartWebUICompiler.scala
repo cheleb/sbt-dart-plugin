@@ -18,14 +18,7 @@ trait DartWebUICompiler {
         //No webui declared.
         Nil
       } else {
-
-        if (webUIPublic.mkdirs()) {
-          Files.createSymbolicLink(webUIPackagesLink.toPath(), webUIPublic.toPath().relativize(packagesLink.toPath()))
-          state.log.info("Add package symlink")
-        } else {
-
-        }
-
+       
         import java.io._
 
         val cacheFile = cache / name
@@ -37,11 +30,6 @@ trait DartWebUICompiler {
 
           val pub = resources / "public"
           state.log.info("\t++++   " + name + "   ++++")
-
-          val out = resources / "public" / "out"
-          if (out.mkdirs()) {
-            state.log.info("Create dir: " + out)
-          }
 
           val t = System.currentTimeMillis()
 

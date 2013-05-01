@@ -45,6 +45,7 @@ trait Dart2jsCompiler {
                     case e: AssetCompilationException => throw reportCompilationError(state, e)
                   }
                   val out = new File(resources, "public/" + naming(name))
+                  println("Update: " + out)
                   IO.write(out, debug)
                   (dependencies ++ Seq(sourceFile)).toSet[File].map(_ -> out)
                 } else {
@@ -78,7 +79,7 @@ trait Dart2jsCompiler {
     }
   }
   val dart2jsCompiler = Dart2jsCompiler(dartId + "-js-compiler",
-    src => (src ** "*") --- (src / "packages" ** "*") --- (src / "out" ** "*"),
+    src => (src ** "*") --- (src / "out" ** "*"),
     dartFiles in Compile,
     _ + ".js")
 }
