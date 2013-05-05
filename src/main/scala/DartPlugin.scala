@@ -10,7 +10,6 @@ import DartKeys._
 object DartPlugin extends Plugin
   with DartPlayAssetDeployer
   with Dart2jsCompiler
-  with DartWebUICompiler
   with WebUITask {
 
   override lazy val settings = Seq(
@@ -19,6 +18,9 @@ object DartPlugin extends Plugin
 
     dartPluginDisabled := false,  
       
+    dartPublicManagedResources <<= (resourceManaged in Compile) / "public",
+    dartPublicWebUIManagedResources <<= dartPublicManagedResources / "out",
+    
     dartDirectory <<= (sourceDirectory in Compile) /  "dart",
     dartPackagesDirectory <<= (dartDirectory) / "packages",
     dartWebDirectory <<= (dartDirectory) / "web",

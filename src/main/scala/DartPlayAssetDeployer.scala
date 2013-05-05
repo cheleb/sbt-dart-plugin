@@ -7,6 +7,7 @@ import PlayExceptions._
 import play.api.PlayException
 import java.nio.file.Files
 
+
 trait DartPlayAssetDeployer {
 
   // ----- Assets
@@ -18,7 +19,7 @@ trait DartPlayAssetDeployer {
   def DartPlayAssetDeployer(name: String,
     watch: File => PathFinder,
     optionsSettings: sbt.SettingKey[Seq[String]]) =
-    (dartPluginDisabled, state, dartPublicDirectory, dartPackagesDirectory, dartWebDirectory, dartWebPackageLink, dartPublicPackagesLink, resourceManaged in Compile, cacheDirectory, optionsSettings, requireJs) map { (disabled, state, public, dartPackages, web, webPackages, packagesLink, resources, cache, options, requireJs) =>
+    (dartPluginDisabled, state, dartPublicDirectory, dartEntryPoints, dartPackagesDirectory, dartWebDirectory, dartWebPackageLink, dartPublicPackagesLink, resourceManaged in Compile, cacheDirectory, optionsSettings, requireJs) map { (disabled, state, public, entryPoints, dartPackages, web, webPackages, packagesLink, resources, cache, options, requireJs) =>
 
       if (disabled) {
         Nil
@@ -61,7 +62,7 @@ trait DartPlayAssetDeployer {
             case (sourceFile, name) => {
               if (changedFiles.contains(sourceFile) ) {
                 
-                println("Update: " + sourceFile)
+                state.log.info("Update: " + sourceFile)
                 
                 val targetFile = new File(resources, "public/" + name)
                 
@@ -88,8 +89,9 @@ trait DartPlayAssetDeployer {
     }
 
   val dartAssetsDeployer = DartPlayAssetDeployer(dartId + "-dart2dart",
-    (_ ** "*.*"),
-    //(base)=>(base ** "*.*" --- (base ** "packages" ** "*" ) +++ (base / "packages" ** "*.js") )  ,
+ //   (_ ** "*.*"),
+//    (base)=>(base ** "*.*" --- (base ** "*.dart") --- (base ** "packages" ** "*" ) +++ (base / "packages" ** "*.js") )  ,
+    (base)=>(base ** "*.*" --- (base ** "*.dart")  )  ,
     dartOptions in Compile)
 
   def reportCompilationError(state: State, error: PlayException.ExceptionSource) = {

@@ -7,6 +7,8 @@ trait DartKeys {
   val dartId = "play-dart"
   val dartPluginDisabled = SettingKey[Boolean](dartId + "-disabled")
   val dartDirectory = SettingKey[java.io.File](dartId + "-directory")
+  val dartPublicManagedResources = SettingKey[java.io.File](dartId + "-public-managed_resources-directory")
+  val dartPublicWebUIManagedResources = SettingKey[java.io.File](dartId + "-public-web-ui-managed_resources-directory")
   val dartPackagesDirectory = SettingKey[java.io.File](dartId + "-packages-directory")
   val dartWebDirectory = SettingKey[java.io.File](dartId + "-web-directory")
   val dartWebPackageLink = SettingKey[java.io.File](dartId + "-web-package-link")

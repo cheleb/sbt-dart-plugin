@@ -1,0 +1,9 @@
+name: play_webuic
+version: 0.4.7+3
+author: NOUGUIER Olivier <olivier.nouguier@gmail.com>
+description: |-
+  Web UI compiler wrapper that publish web_ui files dependencies.
+  Is is used by sbt-dart-plugin https://github.com/cheleb/sbt-dart-plugin
+homepage: https://github.com/cheleb/sbt-dart-plugin
+dependencies:
+  web_ui: '>=0.4.7+3'

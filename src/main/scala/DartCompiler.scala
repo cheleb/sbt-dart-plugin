@@ -56,12 +56,12 @@ object DartCompiler {
    * @param options dart compiler options
    * @return (source, None, Seq(deps))
    */
-  def dart2jsWithTmp(dartDirectory: File, dartFile: File, tmpFile: File, options: Seq[String]) = {
+  private def dart2js(dartFile: File, jsFile: File, options: Seq[String]) {
 
-    val cmd = dart2jsExe.absolutePath + " " + options.mkString(" ") + " -o" + tmpFile.absolutePath + " " + dartFile.absolutePath
+    val cmd = dart2jsExe.absolutePath + " " + options.mkString(" ") + " -o" + jsFile.absolutePath + " " + dartFile.absolutePath
 
     import scala.sys.process._
-    val d2js = Process(cmd, dartDirectory)
+    val d2js = Process(cmd)
 
     var out = List[String]()
     var err = List[String]()
@@ -71,19 +71,30 @@ object DartCompiler {
       throw CompilationException(out.mkString("\n") + err.mkString("\n"), dartFile, None)
     }
 
-    tmpFile
-
   }
 
-  def compileWebUI(dartBase: File, options: Seq[String]) = {
+  def js(dartDir: File, entryPoint: String, entryPointFile: File, shakedTree: File, jsFile: File, deps: File, public: File, options: Seq[String]): Seq[File] = {
+    val dependencies = treeShake(entryPointFile, shakedTree, deps, public, options)
+    dart2js(shakedTree, jsFile, options)
+    dependencies
+  }
 
-    val tmpDir = IO.createTemporaryDirectory
+  def wuic(dartDir: File, entryPoint: String, entryPointFile: File, shakedTree: File, jsFile: File, deps: File, public: File, options: Seq[String]): Seq[File] = {
 
-    val output = dartBase / "web" / "out"
+    val bootstrap = compileWebUI(dartDir, entryPoint, entryPointFile, options)
 
-    val cmd = dartExe.absolutePath + " build.dart"
+    val dependencies = treeShake(bootstrap, shakedTree, deps, public, options)
+    dart2js(shakedTree, jsFile, options)
+    dependencies
+  }
 
-    println("In " + dartBase + "  " + cmd)
+  def compileWebUI(dartBase: File, entryPoint: String, entryPointFile: File, options: Seq[String]): File = {
+
+    val bootstrap = dartBase / "web" / "out" / (entryPoint + "_bootstrap.dart")
+
+    val cmd = dartExe.absolutePath + " --package-root=packages/ " + options.mkString(" ") + " packages/play_webuic/play_webuic.dart --out web/out/ web/" + entryPoint
+
+    //println("In " + dartBase + "\n" + cmd)
 
     import scala.sys.process._
     val d2js = Process(cmd, dartBase)
@@ -95,59 +106,18 @@ object DartCompiler {
     println(out.mkString("\n"))
 
     if (exit != 0) {
-      throw CompilationException(out.mkString("\n") + err.mkString("\n"), dartBase / "build.dart", None)
+      throw CompilationException(out.mkString("\n") + err.mkString("\n"), entryPointFile, None)
     }
 
-    
-
-    allFilesIn(new File(output.absolutePath), f => true) //output / webui.getName())
+    bootstrap
 
   }
 
-  def dart2js(dartDirectory: File, dartFile: File, options: Seq[String]): (String, Option[String], Seq[File]) = {
-    try {
-      val tmpDir = IO.createTemporaryDirectory
+  private def treeShake(sourceFile: File, shakedTree: File, deps: File, public: File, options: Seq[String]): Seq[File] = {
 
-      val tmpFilename = dartFile.name + ".js"
+    dart2js(sourceFile, shakedTree, options :+ "--output-type=dart")
 
-      val tmpFile = tmpDir / tmpFilename
-      dart2jsWithTmp(dartDirectory, dartFile, tmpFile, options)
-      //(IO.read(tmpFile), None, allSiblings(dartFile))
-      (IO.read(tmpFile), None, Nil)
-    } catch {
-      case e: Exception =>
-        e.printStackTrace
-        throw new AssetCompilationException(Some(dartFile), "Internal dart2js Compiler error (see logs)", None, None)
-    }
+    IO.readLines(deps).map(filename => IO.asFile(new java.net.URL(filename)))
   }
-  
-  /**
-   * Publish the dart files.
-   * @param dartFile
-   * @param options dart compiler options
-   * @return (source, None, Self)
-   */
-  def dart2dart(dartFile: File, options: Seq[String]) = {
-    (IO.read(dartFile), None, Seq(dartFile))
-  }
-
-  /**
-   * Return all Dart files in the same directory than the input file, or subdirectories
-   */
-  def allSiblings(source: File): Seq[File] = allFilesIn(source.getParentFile(), f => true)
-
-  def allFilesIn(dir: File, filter: File => Boolean): Seq[File] = {
-    import scala.collection.JavaConversions._
-    val jsFiles = dir.listFiles(new FileFilter {
-      override def accept(f: File) = filter(f)
-    })
-    val directories = dir.listFiles(new FileFilter {
-      override def accept(f: File) = f.isDirectory()
-    })
-    val jsFilesChildren = directories.map(d => allFilesIn(d, filter)).flatten
-    jsFiles ++ jsFilesChildren
-  }
-
-  
 
 }
