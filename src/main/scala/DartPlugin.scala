@@ -10,12 +10,16 @@ import DartKeys._
 object DartPlugin extends Plugin
   with DartPlayAssetDeployer
   with Dart2jsCompiler
-  with WebUITask {
+  with DartTask {
 
+  
+  
   override lazy val settings = Seq(
     //    webuic <<= webuicTask.runBefore(PlayProject.playCopyAssets),
     //    dart2js <<= dart2jsTask.runBefore(PlayProject.playCopyAssets),
 
+    pubInstallTask <<= dartPubInstall.runBefore(PlayProject.playCommonClassloader),
+      
     dartPluginDisabled := false,  
       
     dartPublicManagedResources <<= (resourceManaged in Compile) / "public",

@@ -22,6 +22,16 @@ object DartCompiler {
     }
   }
 
+  lazy val pubExe: File = {
+    val path = dartSdk + "/bin/pub"
+    val exe = new File(path)
+    if (exe.exists())
+      exe
+    else
+      sys.error(exe + " does not exist!")
+
+  }
+  
   lazy val dart2jsExe: File = {
     val path = dartSdk + "/bin/dart2js"
     val exe = new File(path)
@@ -50,6 +60,30 @@ object DartCompiler {
     def sourceName = jsFile.getAbsolutePath
   }
 
+  
+  /**
+   * Compile dart file into javascript.
+   * @param dartFile
+   * @param options dart compiler options
+   * @return (source, None, Seq(deps))
+   */
+  def pub(dartDir: File, command: String) {
+
+    val cmd = pubExe.absolutePath + " " + command
+
+    import scala.sys.process._
+    val d2js = Process(cmd, dartDir)
+
+    var out = List[String]()
+    var err = List[String]()
+    val exit = d2js ! ProcessLogger((s) => out ::= s, (s) => err ::= s)
+
+    if (exit != 0) {
+      throw new PlayException(out.mkString("\n") + err.mkString("\n"), command)
+    }
+
+  }
+  
   /**
    * Compile dart file into javascript.
    * @param dartFile

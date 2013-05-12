@@ -89,29 +89,10 @@ trait DartPlayAssetDeployer {
     }
 
   val dartAssetsDeployer = DartPlayAssetDeployer(dartId + "-dart2dart",
- //   (_ ** "*.*"),
-//    (base)=>(base ** "*.*" --- (base ** "*.dart") --- (base ** "packages" ** "*" ) +++ (base / "packages" ** "*.js") )  ,
-    (base)=>(base ** "*.*" --- (base ** "*.dart")  )  ,
+    (base)=>(base ** "*.*" --- (base ** "*.dart")  --- (base **  "packages" ** "*") +++ (base / "packages" / "browser" ** "*"))  ,
     dartOptions in Compile)
 
-  def reportCompilationError(state: State, error: PlayException.ExceptionSource) = {
-    val log = state.log
-    // log the source file and line number with the error message
-    log.error(Option(error.sourceName).getOrElse("") + Option(error.line).map(":" + _).getOrElse("") + ": " + error.getMessage)
-    Option(error.interestingLines(0)).map(_.focus).flatMap(_.headOption) map { line =>
-      // log the line
-      log.error(line)
-      Option(error.position).map { pos =>
-        // print a carat under the offending character
-        val spaces = (line: Seq[Char]).take(pos).map {
-          case '\t' => '\t'
-          case x => ' '
-        }
-        log.error(spaces.mkString + "^")
-      }
-    }
-    error
-  }
+  
 
 }
   

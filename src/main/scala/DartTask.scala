@@ -5,8 +5,17 @@ import sbt.Keys._
 import play.Project._
 import java.nio.file.Files
 
-trait WebUITask extends DartKeys {
+trait DartTask extends DartKeys {
 
+  
+  lazy val dartPubInstall = (state, dartDirectory in Compile) map { (state, dartDir) =>
+    val packages = dartDir / "packages"
+    if(!packages.exists()) {
+    	state.log.info("pub install")
+        DartCompiler.pub(dartDir, "install")      
+    }
+  }
+  
 //  lazy val dart2jsTask = (dartDirectory in Compile, dartEntryPoints, resourceManaged in Compile, dartOptions) map { (dartDir, inputs, resources, options) =>
 //    println("dart2js task")
 //    inputs.foreach {

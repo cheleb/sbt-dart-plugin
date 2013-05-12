@@ -31,6 +31,7 @@ trait DartKeys {
 
   val webuic = TaskKey[Unit]("web_ui", "compile web_ui")
   val dart2js = TaskKey[Unit]("dart2js", "dart2js")
+  val pubInstallTask = TaskKey[Unit]("dart-pub-install", "pub install task")
 
 }
 
