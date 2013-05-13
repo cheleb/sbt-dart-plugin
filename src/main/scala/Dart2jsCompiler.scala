@@ -11,12 +11,15 @@ trait Dart2jsCompiler {
     entryPoints: SettingKey[Seq[String]],
     watch: File => PathFinder,
     naming: String => String,
-    compiler: (File, String, File, File, File, File, File, Seq[String]) => Seq[sbt.File],
+    compiler: (File, String, File, File, File, File, File, Seq[String], Boolean) => Seq[sbt.File],
+    pureDart: Boolean,
     output: SettingKey[File]) = {
 
-    (dartPluginDisabled, state, dartDirectory, entryPoints, dartWebDirectory in Compile, output, cacheDirectory, dartOptions) map { (disabled, state, dartDir, entryPoints, web, output, cache, options) =>
+    (dart2js, state, dartDirectory, entryPoints, dartWebDirectory in Compile, dartWebUIDirectory, output, cacheDirectory, dartOptions) map { (dart2js, state, dartDir, entryPoints, web, webUIOutput, output, cache, options) =>
 
-      if (disabled || entryPoints.isEmpty) {
+      if (!dart2js && pureDart) {
+        if(!dart2js)
+          state.log.debug("dart2js skipped")
         Nil
       } else {
 
@@ -48,13 +51,13 @@ trait Dart2jsCompiler {
           def checkIfEntryPointShouldBeCompiled(entryPointFile: File, shakedTreeFile: File) =
             dependencies._2s.contains(shakedTreeFile) || !previousRelation._1s.contains(entryPointFile)
 
-          val generated = entryPoints.map(name => targetFiles(web, output, name, naming, checkIfEntryPointShouldBeCompiled)).flatMap {
+          val generated = entryPoints.map(name => targetFiles(web, if(pureDart)None else Some(webUIOutput), output, name, naming, checkIfEntryPointShouldBeCompiled)).flatMap {
             case (entryPoint, entryPointFile, shakedTreeFile, jsFile, depsFile, compile) =>
               if (compile) {
                 state.log.info("Recompile: " + entryPoint)
 
                 val dependencies = try {
-                  compiler(dartDir, entryPoint, entryPointFile, shakedTreeFile, jsFile, depsFile, output, options)
+                  compiler(dartDir, entryPoint, entryPointFile, shakedTreeFile, jsFile, depsFile, output, options, dart2js)
                 } catch {
                   case e: AssetCompilationException => throw reportCompilationError(state, e)
                 }
@@ -93,11 +96,11 @@ trait Dart2jsCompiler {
     }
   }
 
-  def targetFiles(web: File, output: File, entryPoint: String, naming: String => String, test: (File, File) => Boolean): (String, File, File, File, File, Boolean) = {
+  def targetFiles(web: File, tmpOutput: Option[File], output: File, entryPoint: String, naming: String => String, test: (File, File) => Boolean): (String, File, File, File, File, Boolean) = {
     val entryPointFile = web / entryPoint
     val shakedTreeFile = output / naming(entryPoint)
     val jsFile = output / naming(entryPoint).+(".js")
-    val depsFile = output / entryPoint.+(".deps")
+    val depsFile = tmpOutput.getOrElse(output) / entryPoint.+(".deps")
     (entryPoint, entryPointFile, shakedTreeFile, jsFile, depsFile, test(entryPointFile, shakedTreeFile))
   }
 
@@ -106,6 +109,7 @@ trait Dart2jsCompiler {
     src => (src ** "*") --- (src / "out" ** "*"),
     name => name,
     DartCompiler.js,
+    true,
     dartPublicManagedResources in Compile)
 
   val dartWebUICompiler = Dart2jsCompiler(dartId + "-js-web_ui-compiler",
@@ -113,5 +117,6 @@ trait Dart2jsCompiler {
     src => (src ** "*") --- (src / "out" ** "*"),
     _ + "_bootstrap.dart",
     DartCompiler.wuic,
+    false,
     (dartPublicWebUIManagedResources in Compile))
 }

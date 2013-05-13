@@ -19,13 +19,9 @@ trait DartPlayAssetDeployer {
   def DartPlayAssetDeployer(name: String,
     watch: File => PathFinder,
     optionsSettings: sbt.SettingKey[Seq[String]]) =
-    (dartPluginDisabled, state, dartPublicDirectory, dartEntryPoints, dartPackagesDirectory, dartWebDirectory, dartWebPackageLink, dartPublicPackagesLink, resourceManaged in Compile, cacheDirectory, optionsSettings, requireJs) map { (disabled, state, public, entryPoints, dartPackages, web, webPackages, packagesLink, resources, cache, options, requireJs) =>
+    (state, dartPublicDirectory, dartEntryPoints, dartPackagesDirectory, dartWebDirectory, resourceManaged in Compile, cacheDirectory, optionsSettings, requireJs) map { (state, public, entryPoints, dartPackages, web, resources, cache, options, requireJs) =>
 
-      if (disabled) {
-        Nil
-      } else {
-
-      
+           
 
         import java.io._
 
@@ -85,11 +81,11 @@ trait DartPlayAssetDeployer {
           // Return previously generated files
           previousRelation._2s.toSeq
         }
-      }
+      
     }
 
   val dartAssetsDeployer = DartPlayAssetDeployer(dartId + "-dart2dart",
-    (base)=>(base ** "*.*" --- (base ** "*.dart")  --- (base **  "packages" ** "*") +++ (base / "packages" / "browser" ** "*"))  ,
+    (base)=>(base ** "*.*" --- (base ** "*.dart")  --- (base **  "packages" ** "*") +++ (base ** "packages" / "browser" ** "*"))  ,
     dartOptions in Compile)
 
   

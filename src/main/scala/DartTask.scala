@@ -9,10 +9,14 @@ trait DartTask extends DartKeys {
 
   
   lazy val dartPubInstall = (state, dartDirectory in Compile) map { (state, dartDir) =>
+    
+    
     val packages = dartDir / "packages"
+    
+    
     if(!packages.exists()) {
     	state.log.info("pub install")
-        DartCompiler.pub(dartDir, "install")      
+        DartCompiler.pub(dartDir, "install", state.log)      
     }
   }
   

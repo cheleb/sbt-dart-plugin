@@ -20,7 +20,7 @@ object DartPlugin extends Plugin
 
     pubInstallTask <<= dartPubInstall.runBefore(PlayProject.playCommonClassloader),
       
-    dartPluginDisabled := false,  
+    dart2js := true,  
       
     dartPublicManagedResources <<= (resourceManaged in Compile) / "public",
     dartPublicWebUIManagedResources <<= dartPublicManagedResources / "out",
@@ -28,16 +28,13 @@ object DartPlugin extends Plugin
     dartDirectory <<= (sourceDirectory in Compile) /  "dart",
     dartPackagesDirectory <<= (dartDirectory) / "packages",
     dartWebDirectory <<= (dartDirectory) / "web",
-    dartWebPackageLink <<= dartWebDirectory / "packages",
+
     
     dartPublicDirectory <<= baseDirectory / "public",
-    dartPublicPackagesLink <<= dartPublicDirectory / "packages",
+
     
     dartWebUIDirectory <<= (dartWebDirectory) / "out",
     
-    dartWebUIPublicDirectory <<= dartPublicDirectory / "out",
-    dartWebUIPublicPackagesLink <<= dartWebUIPublicDirectory / "packages",
-
     resourceGenerators in Compile <+= dartWebUICompiler,
     resourceGenerators in Compile <+= dartAssetsDeployer,
     resourceGenerators in Compile <+= dart2jsCompiler,

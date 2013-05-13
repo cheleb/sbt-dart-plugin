@@ -31,7 +31,7 @@ object DartCompiler {
       sys.error(exe + " does not exist!")
 
   }
-  
+
   lazy val dart2jsExe: File = {
     val path = dartSdk + "/bin/dart2js"
     val exe = new File(path)
@@ -60,14 +60,18 @@ object DartCompiler {
     def sourceName = jsFile.getAbsolutePath
   }
 
-  
   /**
    * Compile dart file into javascript.
    * @param dartFile
    * @param options dart compiler options
    * @return (source, None, Seq(deps))
    */
-  def pub(dartDir: File, command: String) {
+  def pub(dartDir: File, command: String, log: Logger) {
+
+    val publock = dartDir / "pubspec.lock"
+
+    if (publock.exists())
+      publock.delete()
 
     val cmd = pubExe.absolutePath + " " + command
 
@@ -78,12 +82,13 @@ object DartCompiler {
     var err = List[String]()
     val exit = d2js ! ProcessLogger((s) => out ::= s, (s) => err ::= s)
 
-    if (exit != 0) {
+    if (exit != 0)
       throw new PlayException(out.mkString("\n") + err.mkString("\n"), command)
-    }
+    else
+      log.info(out.mkString("\n"))
 
   }
-  
+
   /**
    * Compile dart file into javascript.
    * @param dartFile
@@ -107,26 +112,38 @@ object DartCompiler {
 
   }
 
-  def js(dartDir: File, entryPoint: String, entryPointFile: File, shakedTree: File, jsFile: File, deps: File, public: File, options: Seq[String]): Seq[File] = {
+  def js(dartDir: File, entryPoint: String, entryPointFile: File, shakedTree: File, jsFile: File, deps: File, public: File, options: Seq[String], d2js: Boolean): Seq[File] = {
     val dependencies = treeShake(entryPointFile, shakedTree, deps, public, options)
     dart2js(shakedTree, jsFile, options)
     dependencies
   }
 
-  def wuic(dartDir: File, entryPoint: String, entryPointFile: File, shakedTree: File, jsFile: File, deps: File, public: File, options: Seq[String]): Seq[File] = {
+  def wuic(dartDir: File, entryPoint: String, entryPointFile: File, shakedTree: File, jsFile: File, deps: File, public: File, options: Seq[String], d2js: Boolean): Seq[File] = {
 
     val bootstrap = compileWebUI(dartDir, entryPoint, entryPointFile, options)
 
+    val parent = shakedTree.getParentFile()
+    parent.mkdirs()
+    
+    
     val dependencies = treeShake(bootstrap, shakedTree, deps, public, options)
-    dart2js(shakedTree, jsFile, options)
+    if(d2js) dart2js(shakedTree, jsFile, options)
     dependencies
   }
 
   def compileWebUI(dartBase: File, entryPoint: String, entryPointFile: File, options: Seq[String]): File = {
 
     val bootstrap = dartBase / "web" / "out" / (entryPoint + "_bootstrap.dart")
-
-    val cmd = dartExe.absolutePath + " --package-root=packages/ " + options.mkString(" ") + " packages/play_webuic/play_webuic.dart --out web/out/ web/" + entryPoint
+    
+    val parentFolder = bootstrap.getParentFile()
+    
+    parentFolder.mkdirs()
+    
+    val output = parentFolder.relativeTo(dartBase).getOrElse(throw new PlayException("Path issue", "Could not relativize"))
+    
+    println(output.getPath())
+    
+    val cmd = dartExe.absolutePath + " --package-root=packages/ " + options.mkString(" ") + " packages/play_webuic/play_webuic.dart --out " + output.getPath() +  "  web/" + entryPoint
 
     //println("In " + dartBase + "\n" + cmd)
 
