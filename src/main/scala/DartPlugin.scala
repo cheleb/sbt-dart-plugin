@@ -28,6 +28,7 @@ object DartPlugin extends Plugin
     dartDirectory <<= (sourceDirectory in Compile) /  "dart",
     dartPackagesDirectory <<= (dartDirectory) / "packages",
     dartWebDirectory <<= (dartDirectory) / "web",
+    dartLibDirectory <<= (dartDirectory) / "lib",
 
     
     dartPublicDirectory <<= baseDirectory / "public",

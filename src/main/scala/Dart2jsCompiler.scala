@@ -15,7 +15,7 @@ trait Dart2jsCompiler {
     pureDart: Boolean,
     output: SettingKey[File]) = {
 
-    (dart2js, state, dartDirectory, entryPoints, dartWebDirectory in Compile, dartWebUIDirectory, output, cacheDirectory, dartOptions) map { (dart2js, state, dartDir, entryPoints, web, webUIOutput, output, cache, options) =>
+    (dart2js, state, dartDirectory, entryPoints, dartWebDirectory in Compile,dartLibDirectory in Compile, dartWebUIDirectory, output, cacheDirectory, dartOptions) map { (dart2js, state, dartDir, entryPoints, web, lib, webUIOutput, output, cache, options) =>
 
       if (!dart2js && pureDart) {
         if(!dart2js)
@@ -26,7 +26,7 @@ trait Dart2jsCompiler {
         import java.io._
 
         val cacheFile = cache / name
-        val currentInfos = watch(web).get.map(f => f -> FileInfo.lastModified(f)).toMap
+        val currentInfos = (watch(web).get ++ watch(lib).get).map(f => f -> FileInfo.lastModified(f)).toMap
 
         val (previousRelation, previousInfo) = Sync.readInfo(cacheFile)(FileInfo.lastModified.format)
 
