@@ -1,5 +1,5 @@
 name: play_webuic
-version: 0.4.7+3.3
+version: 0.4.7+3.6
 author: NOUGUIER Olivier <olivier.nouguier@gmail.com>
 description: |-
   Web UI compiler wrapper that publish web_ui files dependencies.

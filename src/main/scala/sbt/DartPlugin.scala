@@ -4,8 +4,10 @@ import Keys._
 import sbt._
 import sbt.Keys._
 import play.Project._
-
 import DartKeys._
+import sbt.ConfigKey.configurationToKey
+import sbt.Project.richInitializeTask
+import sbt.Scoped.richFileSetting
 
 object DartPlugin extends Plugin
   with DartPlayAssetDeployer
@@ -20,7 +22,9 @@ object DartPlugin extends Plugin
 
     pubInstallTask <<= dartPubInstall.runBefore(PlayProject.playCommonClassloader),
       
-    dart2js := true,  
+    dartDev := false,  
+    dartVerbose := false,  
+    dartNoJs := false,
       
     dartPublicManagedResources <<= (resourceManaged in Compile) / "public",
     dartPublicWebUIManagedResources <<= dartPublicManagedResources / "out",
@@ -42,8 +46,7 @@ object DartPlugin extends Plugin
 
     dartEntryPoints := Seq.empty[String],
     dartWebUIEntryPoints := Seq.empty[String],
-    
-    dartFiles in Compile <<= (dartWebDirectory in Compile).apply(base => ((base ** "*.dart")  --- (base  / "out" ** "*"))),
+
     dartOptions := Seq.empty[String])
 
 }

@@ -1,11 +1,15 @@
 package sbt
 
-import sbt._
 import sbt.Keys._
 import play.Project._
-import java.nio.file.Files
 
-trait DartTask extends DartKeys {
+import sbt.ConfigKey.configurationToKey
+
+import sbt.Scoped.t2ToTable2
+import sbt.State.stateOps
+
+
+trait DartTask extends DartKeys with Pub {
 
   
   lazy val dartPubInstall = (state, dartDirectory in Compile) map { (state, dartDir) =>
@@ -16,7 +20,7 @@ trait DartTask extends DartKeys {
     
     if(!packages.exists()) {
     	state.log.info("pub install")
-        DartCompiler.pub(dartDir, "install", state.log)      
+        pub(dartDir, "install", state.log)      
     }
   }
   
