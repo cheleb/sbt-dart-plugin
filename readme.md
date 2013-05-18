@@ -1,6 +1,6 @@
 Dart support for play2 / scala.
 
-This plugin must be published local until it will be deployed somewhere :-/
+This plugin must be published local until it gets deployed somewhere :-/
 
 `$> sbt`
 
