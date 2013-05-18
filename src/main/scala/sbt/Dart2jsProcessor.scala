@@ -18,20 +18,27 @@ object dart2jsProcessor extends DartProcessor {
     (out / entryPoint, (out / (entryPoint + ".js")))
   }
 
-  def compile(webDir: File, module: Option[String], entryPoint: String, public: File, options: Seq[String], dev: Boolean): (File, Option[File]) = {
+  def compile(dev: Boolean, noJs: Boolean, webDir: File, module: Option[String], entryPoint: String, public: File, options: Seq[String]): Option[File] = {
 
-    val (jsFile, deps) = dart2js(false, webDir, module, entryPoint, options)
-    IO.readLines(deps).map(filename => IO.asFile(new java.net.URL(filename)))
-    (deps, None)
+    if (noJs)
+      None
+    else {
+      val (jsFile, deps) = dart2js(false, webDir, module, entryPoint, options)
+      Some(deps)
+    }
 
   }
 
-  def deployables(dev: Boolean, web: File, module: Option[String], entryPoint: String): Seq[String] = {
-    val js = module.map(m => m + "/" + entryPoint).getOrElse(entryPoint) + ".js"
-    if (dev)
-      List(js, js + ".map")
-    else
-      List(js)
+  def deployables(dev: Boolean, noJs: Boolean, web: File, module: Option[String], entryPoint: String): Seq[String] = {
+    if (noJs) {
+      Nil
+    } else {
+      val js = module.map(m => m + "/" + entryPoint).getOrElse(entryPoint) + ".js"
+      if (dev)
+        List(js, js + ".map")
+      else
+        List(js)
+    }
 
   }
 
@@ -82,25 +89,29 @@ object dartWebUIProcessor extends DartProcessor {
     (out / webuiEntryPoint, (out / (webuiEntryPoint + ".js")))
   }
 
-  def compile(web: File, module: Option[String], entryPoint: String, public: File, options: Seq[String], dev: Boolean): (File, Option[File]) = {
+  def compile(dev: Boolean, noJs: Boolean, web: File, module: Option[String], entryPoint: String, public: File, options: Seq[String]): Option[File] = {
 
     val (bootstrap, deps, outs) = compileWebUI(web, module, entryPoint, options)
 
-    val (jsFile, jsDeps) = dart2js(true, web, module, bootstrap, options)
+    if (!noJs) {
+      val (jsFile, jsDeps) = dart2js(true, web, module, bootstrap, options)
+      IO.append(outs, "file://" + jsFile + "\n")
+      IO.append(outs, "file://" + jsFile + ".map" + "\n")
+    }
 
-    IO.append(outs, "file://" + jsFile + "\n")
-    IO.append(outs, "file://" + jsFile + ".map" + "\n")
-
-    (deps, Some(outs))
+    Some(deps)
   }
 
-  def deployables(dev: Boolean, web: File, module: Option[String], entryPoint: String): Seq[String] = {
+  def deployables(dev: Boolean, noJs: Boolean, web: File, module: Option[String], entryPoint: String): Seq[String] = {
     if (dev) {
       val outs = module.map(m => web / m).getOrElse(web) / "out" / (entryPoint + ".outs")
       IO.readLines(outs).map(filename => IO.asFile(new java.net.URL(filename)).relativeTo(web).get.toString())
     } else {
       val boot = module.map(m => m + "/out").getOrElse("out") + "/" + entryPoint + "_bootstrap.dart"
-      List(boot, boot + ".js")
+      if (noJs)
+        List(boot, boot + ".js")
+      else
+        List(boot)
     }
   }
 }

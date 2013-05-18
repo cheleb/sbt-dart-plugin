@@ -93,7 +93,7 @@ trait DartProcessor extends DartSdk {
 
   def resolves(public: File, module: Option[String], entryPoint: String): (File, File)
 
-  def compile(webDir: File, module: Option[String], entryPoint: String, public: File, options: Seq[String], dev: Boolean): (File, Option[File])
+  def compile(dev: Boolean, noJs: Boolean, webDir: File, module: Option[String], entryPoint: String, public: File, options: Seq[String]): Option[File]
 
-  def deployables(dev: Boolean, web: File, module: Option[String], entryPoint: String): Seq[String]
+  def deployables(dev: Boolean, noJs: Boolean, web: File, module: Option[String], entryPoint: String): Seq[String]
 }

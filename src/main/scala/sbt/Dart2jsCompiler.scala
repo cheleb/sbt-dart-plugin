@@ -125,14 +125,14 @@ trait Dart2jsCompiler {
             if (compile) {
               state.log.info(" dart - processing: " + entryPoint)
 
-              val (dependencies, outs) = try {
-                val (deps, outs) = proc.compile(web, module, entryPoint, public, options, dev)
-                (IO.readLines(deps).map(filename => IO.asFile(new java.net.URL(filename))), outs)
+              val dependencies = try {
+                val deps = proc.compile(dev, noJs, web, module, entryPoint, public, options)
+                deps.map(deps => IO.readLines(deps).map(filename => IO.asFile(new java.net.URL(filename)))).getOrElse(Nil)
               } catch {
                 case e: AssetCompilationException => throw reportCompilationError(state, e)
               }
 
-              val deployables = proc.deployables(dev, web, module, entryPoint)
+              val deployables = proc.deployables(dev, noJs, web, module, entryPoint)
 
               // println(name + " deploy: " + deployables)
 
@@ -150,7 +150,7 @@ trait Dart2jsCompiler {
             } else {
               if (verbose)
                 state.log.info("Cached: " + entryPoint)
-              val deployables = proc.deployables(dev, web, module, entryPoint)
+              val deployables = proc.deployables(dev, noJs, web, module, entryPoint)
 
               deployables.map(path => public / path) flatMap (dst => previousRelation.filter((original, compiled) => compiled == dst)._1s.map(_ -> dst))
 
