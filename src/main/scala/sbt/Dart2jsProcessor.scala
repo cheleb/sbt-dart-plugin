@@ -117,7 +117,7 @@ object dartWebUIProcessor extends DartProcessor {
       
     } else {
       val boot = module.map(m => m + "/out").getOrElse("out") + "/" + entryPoint + "_bootstrap.dart"
-      if (noJs)
+      if (!noJs)
         List(boot, boot + ".js")
       else
         List(boot)
