@@ -82,7 +82,7 @@ trait Dart2jsCompiler {
     watch: File => PathFinder,
     proc: DartProcessor) = {
 
-    (dartVerbose, dartDev, dartNoJs, state, dartDirectory, entryPoints, dartWebDirectory in Compile, dartLibDirectory in Compile, dartWebUIDirectory, dartPublicManagedResources in Compile, cacheDirectory, dartOptions) map { (verbose, dev, noJs, state, dartDir, entryPoints, webSrc, lib, webUIOutput, public, cache, options) =>
+    (dartVerbose, dartDev, dartNoJs, state, dartDirectory, entryPoints, dartWebDirectory in Compile, dartLibDirectory in Compile, dartPublicManagedResources in Compile, cacheDirectory, dartOptions) map { (verbose, dev, noJs, state, dartDir, entryPoints, webSrc, lib, public, cache, options) =>
 
       import java.io._
 

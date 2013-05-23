@@ -38,8 +38,6 @@ object DartPlugin extends Plugin
     dartPublicDirectory <<= baseDirectory / "public",
 
     
-    dartWebUIDirectory <<= (dartWebDirectory) / "out",
-    
     resourceGenerators in Compile <+= dartWebUICompiler,
     resourceGenerators in Compile <+= dartAssetsDeployer,
     resourceGenerators in Compile <+= dart2jsCompiler,

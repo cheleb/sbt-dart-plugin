@@ -19,8 +19,6 @@ trait DartKeys {
 
   val dartPublicDirectory = SettingKey[java.io.File](dartId + "-public-directory")
 
-  val dartWebUIDirectory = SettingKey[java.io.File](dartId + "-web_ui-directory")
-
   val dartEntryPoints = SettingKey[Seq[String]](dartId + "-entries-point")
   //  val dartEntryPoints = SettingKey[PathFinder](dartId + "-entry-points")
   val dartWebUIEntryPoints = SettingKey[Seq[String]](dartId + "-web_ui-entries-point")
