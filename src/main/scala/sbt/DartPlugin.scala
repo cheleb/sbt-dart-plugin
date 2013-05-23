@@ -27,7 +27,7 @@ object DartPlugin extends Plugin
     dartNoJs := false,
       
     dartPublicManagedResources <<= (resourceManaged in Compile) / "public",
-    dartPublicWebUIManagedResources <<= dartPublicManagedResources / "out",
+    
     
     dartDirectory <<= (sourceDirectory in Compile) /  "dart",
     dartPackagesDirectory <<= (dartDirectory) / "packages",

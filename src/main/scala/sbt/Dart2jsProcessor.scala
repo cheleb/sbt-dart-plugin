@@ -104,8 +104,17 @@ object dartWebUIProcessor extends DartProcessor {
 
   def deployables(dev: Boolean, noJs: Boolean, web: File, module: Option[String], entryPoint: String): Seq[String] = {
     if (dev) {
-      val outs = module.map(m => web / m).getOrElse(web) / "out" / (entryPoint + ".outs")
-      IO.readLines(outs).map(filename => IO.asFile(new java.net.URL(filename)).relativeTo(web).get.toString())
+//      val outs = module.map(m => web / m).getOrElse(web) / "out" / (entryPoint + ".outs")
+//      IO.readLines(outs).map(filename => IO.asFile(new java.net.URL(filename)).relativeTo(web).get.toString())
+//    
+      
+      val out = module.map(m => web / m).getOrElse(web) / "out"
+      def gr(m: File => PathFinder)(f: File) = m(f) 
+      val pf = gr(_ ** "*")(out)
+      
+      pf.getFiles.filterNot(_.isDirectory()).map(_.relativeTo(web).get.toString());
+      
+      
     } else {
       val boot = module.map(m => m + "/out").getOrElse("out") + "/" + entryPoint + "_bootstrap.dart"
       if (noJs)
