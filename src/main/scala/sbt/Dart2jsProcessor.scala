@@ -64,7 +64,7 @@ object dartWebUIProcessor extends DartProcessor {
 
     val cmd = dartExePath + " --package-root=packages/ " + options.mkString(" ") + " packages/play_webuic/play_webuic.dart --out " + out + " " + entryPointPath
 
-    println("In " + web + "\n" + cmd)
+    //println("In " + web + "\n" + cmd)
 
     import scala.sys.process._
     val d2js = Process(cmd, web)
