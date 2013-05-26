@@ -4,13 +4,10 @@ package sbt
 import sbt.Keys._
 import play.Project._
 import DartKeys._
-
-
 import sbt.ConfigKey.configurationToKey
-
 import sbt.Scoped.t12ToTable12
-
 import sbt.State.stateOps
+import java.nio.file.Files
 
 
 trait Dart2jsCompiler {
@@ -19,12 +16,12 @@ trait Dart2jsCompiler {
    * Sync the resources from app/dart/web to cache/web.
    * This step is needed (AFAIU) to avoid relative path issues when generating sourcemap (when output are redirected).
    */
-  def syncWorkingFiles(state: State, web: File, lib: File, work: File) {
+  def syncWorkingFiles(state: State, dartDir: File, web: File, lib: File, work: File) {
     val webwork = work / "web"
     webwork.mkdirs()
     val copyCacheFile = work / "timestamps"
 
-    val watch = (base: File) => (base ** "*.*")
+    val watch = (base: File) => (base ** "*.*") --- (base ** "packages" ** "*")
 
     val currentInfos = (watch(web).get ++ watch(lib).get).map(f => f -> FileInfo.lastModified(f)).toMap
 
@@ -55,6 +52,16 @@ trait Dart2jsCompiler {
             val targetFile = webwork / name
 
             IO.copyFile(sourceFile, targetFile, true)
+            
+            if(targetFile.getName().endsWith(".dart")) {
+              val packages = targetFile.toPath().getParent().resolve("packages")
+              if(Files.exists(packages)){
+                  if(!Files.isSymbolicLink(packages))
+                    sys.error(packages + " is a reserved folder name by dart and should not exist" )
+              } else {
+                Files.createSymbolicLink(packages, (dartDir / "packages").toPath )
+              }
+            }
 
             List((sourceFile, targetFile))
           } else {
@@ -89,7 +96,7 @@ trait Dart2jsCompiler {
       val work = cache / "dart"
       val web = work / "web"
 
-      synchronized(syncWorkingFiles(state, webSrc, lib, work))
+      synchronized(syncWorkingFiles(state, dartDir, webSrc, lib, work))
 
       val cacheFile = cache / name
 
