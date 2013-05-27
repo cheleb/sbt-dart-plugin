@@ -21,7 +21,10 @@ object DartPlugin extends Plugin
     //    dart2js <<= dart2jsTask.runBefore(PlayProject.playCopyAssets),
 
     pubInstallTask <<= dartPubInstall.runBefore(PlayProject.playCommonClassloader),
-      
+    
+    
+    unmanagedBase <<= baseDirectory { base => base / "playlibs" },
+    
     dartDev := false,  
     dartVerbose := false,  
     dartNoJs := false,
@@ -29,7 +32,7 @@ object DartPlugin extends Plugin
     dartPublicManagedResources <<= (resourceManaged in Compile) / "public",
     
     
-    dartDirectory <<= (baseDirectory) /  "dart",
+    dartDirectory <<= baseDirectory,
     dartPackagesDirectory <<= (dartDirectory) / "packages",
     dartWebDirectory <<= (dartDirectory) / "web",
     dartLibDirectory <<= (dartDirectory) / "lib",

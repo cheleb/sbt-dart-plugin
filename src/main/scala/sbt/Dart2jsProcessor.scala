@@ -46,7 +46,7 @@ object dart2jsProcessor extends DartProcessor {
 
 object dartWebUIProcessor extends DartProcessor {
 
-  def compileWebUI(web: File, module: Option[String], entryPoint: String, options: Seq[String]): (String, File, File) = {
+  def compileWebUI(dev: Boolean, web: File, module: Option[String], entryPoint: String, options: Seq[String]): (String, File, File) = {
 
     val entryPointPath = module.map(m => m + "/" + entryPoint).getOrElse(entryPoint)
 
@@ -64,21 +64,13 @@ object dartWebUIProcessor extends DartProcessor {
 
     val cmd = dartExePath + " --package-root=packages/ " + options.mkString(" ") + " packages/play_webuic/play_webuic.dart --out " + out + " " + entryPointPath
 
-    //println("In " + web + "\n" + cmd)
+    runCommand(web, cmd, entryPointFile)
 
-    import scala.sys.process._
-    val d2js = Process(cmd, web)
-
-    var stdout = List[String]()
-    var stderr = List[String]()
-    val exit = d2js ! ProcessLogger((s) => stdout ::= s, (s) => stderr ::= s)
-
-    println(stdout.mkString("\n"))
-
-    if (exit != 0) {
-      throw CompilationException(stdout.mkString("\n") + stderr.mkString("\n"), entryPointFile, None)
+    if (!dev) {
+      val bootstrapPath = out + "/" + entryPoint + "_bootstrap.dart"
+      val shaker = dart2jsExePath + " --package-root=packages/ --output-type=dart " + options.mkString(" ") + " -o" + bootstrapPath + " " + bootstrapPath
+      runCommand(web, shaker, entryPointFile)
     }
-
     (entryPoint + "_bootstrap.dart", depsFile, outsFile)
 
   }
@@ -91,7 +83,7 @@ object dartWebUIProcessor extends DartProcessor {
 
   def compile(dev: Boolean, noJs: Boolean, web: File, module: Option[String], entryPoint: String, public: File, options: Seq[String]): Option[File] = {
 
-    val (bootstrap, deps, outs) = compileWebUI(web, module, entryPoint, options)
+    val (bootstrap, deps, outs) = compileWebUI(dev, web, module, entryPoint, options)
 
     if (!noJs) {
       val (jsFile, jsDeps) = dart2js(true, web, module, bootstrap, options)
@@ -104,17 +96,16 @@ object dartWebUIProcessor extends DartProcessor {
 
   def deployables(dev: Boolean, noJs: Boolean, web: File, module: Option[String], entryPoint: String): Seq[String] = {
     if (dev) {
-//      val outs = module.map(m => web / m).getOrElse(web) / "out" / (entryPoint + ".outs")
-//      IO.readLines(outs).map(filename => IO.asFile(new java.net.URL(filename)).relativeTo(web).get.toString())
-//    
-      
+      //      val outs = module.map(m => web / m).getOrElse(web) / "out" / (entryPoint + ".outs")
+      //      IO.readLines(outs).map(filename => IO.asFile(new java.net.URL(filename)).relativeTo(web).get.toString())
+      //    
+
       val out = module.map(m => web / m).getOrElse(web) / "out"
-      def gr(m: File => PathFinder)(f: File) = m(f) 
+      def gr(m: File => PathFinder)(f: File) = m(f)
       val pf = gr(_ ** "*")(out)
-      
+
       pf.getFiles.filterNot(_.isDirectory()).map(_.relativeTo(web).get.toString());
-      
-      
+
     } else {
       val boot = module.map(m => m + "/out").getOrElse("out") + "/" + entryPoint + "_bootstrap.dart"
       if (!noJs)

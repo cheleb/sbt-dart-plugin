@@ -1,19 +1,17 @@
 package sbt
 
-
-
 trait DartSdk {
-  
+
   def dart2jsExePath = DartSdk.dart2jsExe.absolutePath
-  
+
   def pubExePath = DartSdk.pubExe.absolutePath
-  
+
   def dartExePath = DartSdk.dartExe.absolutePath
 }
 
 object DartSdk {
-   lazy val dartSdk: File = {
-    
+  lazy val dartSdk: File = {
+
     val DART_SDK = System.getenv("DART_SDK")
     if (DART_SDK == null) {
       sys.error("DART_HOME env variable must be defined!")
@@ -60,6 +58,19 @@ object DartSdk {
 
 trait DartProcessor extends DartSdk {
 
+  def runCommand(in: File, cmd: String, inputFile: File) {
+    import scala.sys.process._
+    val d2js = Process(cmd, in)
+
+    var stdout = List[String]()
+    var stderr = List[String]()
+    val exit = d2js ! ProcessLogger((s) => stdout ::= s, (s) => stderr ::= s)
+
+    if (exit != 0) {
+      throw CompilationException(stdout.mkString("\n") + stderr.mkString("\n"), inputFile, None)
+    }
+  }
+
   /**
    * Compile dart file into javascript.
    * @param dartFile
@@ -76,16 +87,7 @@ trait DartProcessor extends DartSdk {
 
     val dartFile = web / entryPointPath
 
-    import scala.sys.process._
-    val d2js = Process(cmd, web)
-
-    var stdout = List[String]()
-    var stderr = List[String]()
-    val exit = d2js ! ProcessLogger((s) => stdout ::= s, (s) => stderr ::= s)
-
-    if (exit != 0) {
-      throw CompilationException(stdout.mkString("\n") + stderr.mkString("\n"), dartFile, None)
-    }
+    runCommand(web, cmd, dartFile)
 
     (web / (entryPointPath + ".js"), web / (entryPointPath + ".js.deps"))
 
