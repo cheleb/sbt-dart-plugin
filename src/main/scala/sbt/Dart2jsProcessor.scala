@@ -104,7 +104,7 @@ object dartWebUIProcessor extends DartProcessor {
       def gr(m: File => PathFinder)(f: File) = m(f)
       val pf = gr(_ ** "*")(out)
 
-      pf.getFiles.filterNot(_.isDirectory()).map(_.relativeTo(web).get.toString());
+      pf.get.filterNot(_.isDirectory()).map(_.relativeTo(web).get.toString());
 
     } else {
       val boot = module.map(m => m + "/out").getOrElse("out") + "/" + entryPoint + "_bootstrap.dart"

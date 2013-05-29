@@ -9,6 +9,8 @@ resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/release
 
 addSbtPlugin("com.typesafe.sbteclipse" %% "sbteclipse-plugin" % "2.1.2")
 
+addSbtPlugin("com.github.mpeltonen" % "sbt-idea" % "1.4.0")
+
 //addSbtPlugin("play" % "sbt-plugin" % "2.1.0")
 
 //javacOptions ++= Seq("-source", "1.7", "-target", "1.7")

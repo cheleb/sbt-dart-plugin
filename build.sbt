@@ -11,7 +11,7 @@ resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/release
 
 addSbtPlugin("play" % "sbt-plugin" % "2.1.0")
 
-//libraryDependencies += "org.scala-tools.sbinary" %% "sbinary" % "0.4.1"
+libraryDependencies += "com.typesafe.sbteclipse" %% "sbteclipse" % "2.0.0"
 
 //libraryDependencies += "play" %% "play" % "2.1-0627-sbt12"
 

@@ -5,3 +5,6 @@ packages
 .project
 .settings/
 target/
+.idea/
+.idea_modules/
+sbt-dart-plugin.iml
