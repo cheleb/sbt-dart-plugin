@@ -1,6 +1,5 @@
 package sbt
 
-
 import sbt.Keys._
 import play.Project._
 import DartKeys._
@@ -9,18 +8,16 @@ import sbt.Scoped.t12ToTable12
 import sbt.State.stateOps
 import java.nio.file.Files
 
-
 trait Dart2jsCompiler {
 
-  
-  def insurePackagesLink(siblin: File, dartDir: File)  {
-     val packages = siblin.toPath().getParent().resolve("packages")
-              if(Files.exists(packages)){
-                  if(!Files.isSymbolicLink(packages))
-                    sys.error(packages + " is a reserved folder name by dart and should not exist" )
-              } else {
-                Files.createSymbolicLink(packages, (dartDir / "packages").toPath )
-              }
+  def insurePackagesLink(siblin: File, dartDir: File) {
+    val packages = siblin.toPath().getParent().resolve("packages")
+    if (Files.exists(packages)) {
+      if (!Files.isSymbolicLink(packages))
+        sys.error(packages + " is a reserved folder name by dart and should not exist")
+    } else {
+      Files.createSymbolicLink(packages, (dartDir / "packages").toPath)
+    }
   }
   /**
    * Sync the resources from app/dart/web to cache/web.
@@ -62,9 +59,9 @@ trait Dart2jsCompiler {
             val targetFile = webwork / name
 
             IO.copyFile(sourceFile, targetFile, true)
-            
-            if(targetFile.getName().endsWith(".dart")) {
-             insurePackagesLink(targetFile, dartDir)
+
+            if (targetFile.getName().endsWith(".dart")) {
+              insurePackagesLink(targetFile, dartDir)
             }
 
             List((sourceFile, targetFile))
@@ -104,7 +101,7 @@ trait Dart2jsCompiler {
 
       val cacheFile = cache / name
 
-      val currentInfos = watch(web).get.map(f => f -> FileInfo.lastModified(f)).toMap
+      val currentInfos = (watch(web).get.map(f => f -> FileInfo.lastModified(f)) ++ watch(lib).get.map(f => f -> FileInfo.lastModified(f))).toMap
 
       val (previousRelation, previousInfo) = Sync.readInfo(cacheFile)(FileInfo.lastModified.format)
 
@@ -135,10 +132,8 @@ trait Dart2jsCompiler {
 
             if (compile) {
               state.log.info(" dart - processing: " + entryPoint)
-              
-              
+
               insurePackagesLink(entryPointFile, dartDir)
-              
 
               val dependencies = try {
                 val deps = proc.compile(dev, noJs, web, module, entryPoint, public, options)
@@ -210,7 +205,6 @@ trait Dart2jsCompiler {
 
     (module, entryPoint, entryPointFile, compile(entryPointFile, dartFile, jsFile))
   }
-
 
   val dart2jsCompiler = Dart2jsCompiler(dartId + "-js-compiler",
     dartEntryPoints,

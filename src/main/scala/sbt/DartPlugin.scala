@@ -41,7 +41,9 @@ object DartPlugin extends Plugin
 
     dartPublicDirectory <<= baseDirectory / "public",
 
-    resourceDirectories in Compile <+= dartDirectory,
+    resourceDirectories in Compile <+= dartWebDirectory,
+    
+    resourceDirectories in Compile <+= dartLibDirectory,
 
     resourceGenerators in Compile <+= dartWebUICompiler,
     resourceGenerators in Compile <+= dartAssetsDeployer,
