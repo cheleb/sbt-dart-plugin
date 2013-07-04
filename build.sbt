@@ -1,7 +1,9 @@
 version := "0.2.2-SNAPSHOT"
 
-//scalaVersion := "2.10.1"
-scalaVersion := "2.9.2"
+sbtVersion in Global := "0.13.0-RC1"
+
+scalaVersion := "2.10.2"
+//scalaVersion := "2.9.2"
 
 sbtPlugin := true
 
@@ -9,7 +11,7 @@ name := "sbt-dart-plugin"
 
 resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
 
-addSbtPlugin("play" % "sbt-plugin" % "2.1.0")
+addSbtPlugin("play" % "sbt-plugin" % "2.1.2-RC2")
 
 libraryDependencies += "com.typesafe.sbteclipse" %% "sbteclipse" % "2.0.0"
 
