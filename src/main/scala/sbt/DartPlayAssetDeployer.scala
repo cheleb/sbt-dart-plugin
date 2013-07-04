@@ -1,9 +1,9 @@
 package sbt
 
 import Keys._
-import PlayKeys._
+import play.Keys._
 import DartKeys._
-import PlayExceptions._
+import play.PlayExceptions._
 import sbt.ConfigKey.configurationToKey
 import sbt.Scoped.t10ToTable10
 import sbt.State.stateOps

@@ -1,7 +1,9 @@
 version := "0.2.2-SNAPSHOT"
 
-//scalaVersion := "2.10.1"
-scalaVersion := "2.9.2"
+offline := true
+
+scalaVersion := "2.10.2"
+//scalaVersion := "2.9.2"
 
 sbtPlugin := true
 
@@ -9,9 +11,12 @@ name := "sbt-dart-plugin"
 
 resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
 
-addSbtPlugin("play" % "sbt-plugin" % "2.1.0")
+//resolvers += Resolver.file("my-test-repo", file("/Users/cheleb/projects/playframework/playframework/repository/local/"))(Resolver.ivyStylePatterns)
 
-libraryDependencies += "com.typesafe.sbteclipse" %% "sbteclipse" % "2.0.0"
+resolvers += "Sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
+
+//addSbtPlugin("play" % "sbt-plugin" % "2.1.2-RC2")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.2.0")
 
 //libraryDependencies += "play" %% "play" % "2.1-0627-sbt12"
 
