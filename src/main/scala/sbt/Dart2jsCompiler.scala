@@ -4,7 +4,6 @@ import sbt.Keys._
 import play.Project._
 import DartKeys._
 import sbt.ConfigKey.configurationToKey
-import sbt.Scoped.t12ToTable12
 import sbt.State.stateOps
 import java.nio.file.Files
 

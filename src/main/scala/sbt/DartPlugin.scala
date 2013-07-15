@@ -6,7 +6,7 @@ import sbt.Keys._
 import play.Project._
 import DartKeys._
 import sbt.ConfigKey.configurationToKey
-import sbt.Project.richInitializeTask
+
 import sbt.Scoped.richFileSetting
 
 import scalaz.Validation._
@@ -24,7 +24,7 @@ object DartPlugin extends Plugin
 
     dartProjectTransform,
 
-    pubInstallTask <<= dartPubInstall.runBefore(PlayProject.playCommonClassloader),
+    pubInstallTask <<= dartPubInstall.runBefore(play.Project.playCommonClassloader),
 
     unmanagedBase <<= baseDirectory { base => base / "playlibs" },
 
