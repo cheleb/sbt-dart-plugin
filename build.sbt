@@ -11,12 +11,12 @@ name := "sbt-dart-plugin"
 
 resolvers += "Typesafe repository" at "http://repo.typesafe.com/typesafe/releases/"
 
-resolvers += Resolver.file("my-test-repo", file("/Users/olivier/projects/scala/Play20/repository/local/"))(Resolver.ivyStylePatterns)
+//resolvers += Resolver.file("my-test-repo", file("/Users/cheleb/projects/playframework/playframework/repository/local/"))(Resolver.ivyStylePatterns)
 
 resolvers += "Sonatype snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
 
 //addSbtPlugin("play" % "sbt-plugin" % "2.1.2-RC2")
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.2-SNAPSHOT")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.2.0")
 
 //libraryDependencies += "play" %% "play" % "2.1-0627-sbt12"
 

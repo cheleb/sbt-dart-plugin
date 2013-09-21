@@ -3,7 +3,7 @@ package sbt
 import sbt._
 import play.api._
 import Keys._
-import PlayKeys._
+import play.Keys._
 
 
 trait Pub extends DartSdk {
