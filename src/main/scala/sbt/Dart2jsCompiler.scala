@@ -9,15 +9,7 @@ import java.nio.file.Files
 
 trait Dart2jsCompiler {
 
-  def insurePackagesLink(siblin: File, dartDir: File) {
-    val packages = siblin.toPath().getParent().resolve("packages")
-    if (Files.exists(packages)) {
-      if (!Files.isSymbolicLink(packages))
-        sys.error(packages + " is a reserved folder name by dart and should not exist")
-    } else {
-      Files.createSymbolicLink(packages, (dartDir / "packages").toPath)
-    }
-  }
+  
   /**
    * Sync the resources from app/dart/web to cache/web.
    * This step is needed (AFAIU) to avoid relative path issues when generating sourcemap (when output are redirected).
@@ -60,7 +52,7 @@ trait Dart2jsCompiler {
             IO.copyFile(sourceFile, targetFile, true)
 
             if (targetFile.getName().endsWith(".dart")) {
-              insurePackagesLink(targetFile, dartDir)
+              LinkerHelper.insurePackagesLink(targetFile, dartDir)
             }
 
             List((sourceFile, targetFile))
@@ -132,7 +124,7 @@ trait Dart2jsCompiler {
             if (compile) {
               state.log.info(" dart - processing: " + entryPoint)
 
-              insurePackagesLink(entryPointFile, dartDir)
+              LinkerHelper.insurePackagesLink(entryPointFile, dartDir)
 
               val dependencies = try {
                 val deps = proc.compile(dev, noJs, web, module, entryPoint, public, options)
