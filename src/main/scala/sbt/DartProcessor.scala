@@ -14,7 +14,7 @@ object DartSdk {
 
     val DART_SDK = System.getenv("DART_SDK")
     if (DART_SDK == null) {
-      sys.error("DART_HOME env variable must be defined!")
+      sys.error("DART_SDK env variable must be defined!")
     } else {
       val dartHome = new File(DART_SDK)
       if (dartHome.exists())

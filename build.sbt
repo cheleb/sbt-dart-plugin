@@ -1,6 +1,6 @@
 version := "0.2.2-SNAPSHOT"
 
-offline := true
+offline := false
 
 scalaVersion := "2.10.3"
 
@@ -18,4 +18,5 @@ addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.2.1")
 publishTo := Some(Resolver.file("file",  new File( "/tmp/sbt-dart" )) )
 
 organization := "net.orcades"
+
 
