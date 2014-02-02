@@ -10,6 +10,7 @@ trait DartSdk {
 }
 
 object DartSdk {
+  import scala.util.Properties
   lazy val dartSdk: File = {
 
     val DART_SDK = System.getenv("DART_SDK")
@@ -24,35 +25,19 @@ object DartSdk {
     }
   }
 
-  lazy val pubExe: File = {
-    val path = dartSdk + "/bin/pub"
+  def getSdkFile(fileName: String, windowsExtension: String) = {
+    val path = dartSdk + fileName + (if (Properties.isWin) windowsExtension else "")
     val exe = new File(path)
     if (exe.exists())
       exe
     else
       sys.error(exe + " does not exist!")
-
   }
-
-  lazy val dart2jsExe: File = {
-    val path = dartSdk + "/bin/dart2js"
-    val exe = new File(path)
-    if (exe.exists())
-      exe
-    else
-      sys.error(exe + " does not exist!")
-
-  }
-
-  lazy val dartExe: File = {
-    val path = dartSdk + "/bin/dart"
-    val exe = new File(path)
-    if (exe.exists())
-      exe
-    else
-      sys.error(exe + " does not exist!")
-
-  }
+  
+  lazy val pubExe: File = getSdkFile("/bin/pub",".bat")
+  lazy val dart2jsExe: File = getSdkFile("/bin/dart2js",".bat")
+  lazy val dartExe: File = getSdkFile("/bin/dart",".exe")
+   
 
 }
 
