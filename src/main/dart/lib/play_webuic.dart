@@ -6,15 +6,13 @@ import 'dart:io';
 
 import "package:web_ui/dwc.dart" as dwc;
 import "package:web_ui/src/options.dart";
-import "package:web_ui/src/compiler.dart";
+//import "package:web_ui/src/compiler.dart";
 
-void main() {
+void main(List<String> args) {
+    
+  var co = CompilerOptions.parse(args);
   
-  var o = new Options();
-  
-  var co = CompilerOptions.parse(o.arguments);
-  
-  dwc.run(o.arguments).then((result) {
+  dwc.run(args).then((result) {
     if(result.success){
       dumpDependencies(co.outputDir, co.inputFile, result.inputs, result.outputs);
     }else{
@@ -35,9 +33,9 @@ IOSink openOutputStream(String outputDir, String entryPointPath, String type){
 
 Future dumpDependencies(String outputDir, String entryPoint, List deps, Map<String, String> outputs){
   IOSink depsStream = openOutputStream(outputDir,entryPoint, "deps");
-  deps.forEach((d){
+  deps.forEach((String d){
     File dep = new File(d);
-    depsStream.write("file://" + dep.fullPathSync() + "\n");
+    depsStream.write("file:///" + dep.resolveSymbolicLinksSync() + "\n");
   });
   
   depsStream.close();
@@ -45,7 +43,7 @@ Future dumpDependencies(String outputDir, String entryPoint, List deps, Map<Stri
   IOSink outsStream = openOutputStream(outputDir,entryPoint, "outs");
   outputs.forEach((k,v){
     File path = new File(k);
-    outsStream.write("file://" + path.fullPathSync() + "\n");
+    outsStream.write("file:///" + path.resolveSymbolicLinksSync() + "\n");
   });
   outsStream.close();
   
